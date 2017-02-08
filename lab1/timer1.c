@@ -21,15 +21,23 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 pid_t Fork(void);
 
 int main(int argc, char **argv) {
+    struct timeval begin, end;
     pid_t child_pid;
     int status;
+
+    // timing stuff
+    if (gettimeofday(&begin, NULL) < 0) {
+        fprintf(stderr, "gettimeofday failed.\n");
+        return EXIT_FAILURE;
+    }
 
     child_pid = Fork();
 
@@ -45,10 +53,18 @@ int main(int argc, char **argv) {
     } else {                        // parent process
         printf("Parent. PID = %d. Child PID = %d.\n", getpid(), child_pid);
 
+        if (gettimeofday(&end, NULL) < 0) {
+            fprintf(stderr, "gettimeofday failed.\n");
+            return EXIT_FAILURE;
+        }
+
         if (wait(&status) < 0) {
             fprintf(stderr, "wait error %s.\n", strerror(errno));
             return EXIT_FAILURE;
         }
+
+        float duration = (end.tv_usec - begin.tv_usec);
+        printf("Runtime of child process %.1f microseconds.\n", duration);
     }
 
     return EXIT_SUCCESS; 
