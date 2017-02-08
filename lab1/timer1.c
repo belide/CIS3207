@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
         }
 
         float duration = (end.tv_usec - begin.tv_usec);
-        printf("Runtime of child process %.1f microseconds.\n", duration);
+        printf("Time from starting up to launching %.1f microseconds.\n", duration);
     }
 
     return EXIT_SUCCESS; 

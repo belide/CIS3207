@@ -21,25 +21,78 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 pid_t Fork(void);
 
 int main(int argc, char **argv) {
-    pid_t child_pid;
+    struct timeval begin1, begin2, end;
+    pid_t child_pid1, child_pid2;
+    int status;
 
-    child_pid = Fork();
+    // timing stuff
+    if (gettimeofday(&begin1, NULL) < 0) {
+        fprintf(stderr, "gettimeofday failed.\n");
+        return EXIT_FAILURE;
+    }
 
-    if (child_pid == 0) {           // child process
-        printf("Child. PID = %d.\n", getpid());
+    child_pid1 = Fork();
 
-        if (execl("./application", "file1.txt", NULL) < 0) {
+    if (child_pid1 == 0) {           // child process
+        printf("Child 1. PID = %d.\n", getpid());
+
+        if (execl("./application", "./application", "file1.txt", NULL) < 0) {
             fprintf(stderr, "exec error: %s.\n", strerror(errno));
+            return EXIT_FAILURE;
         }
+
+        exit(-1);
     } else {                        // parent process
-        printf("Parent. PID = %d. Child PID = %d.\n", getpid(), child_pid);
+        if (gettimeofday(&begin2, NULL) < 0) {
+            fprintf(stderr, "gettimeofday failed.\n");
+            return EXIT_FAILURE;
+        }
+
+        child_pid2 = Fork();
+
+        if (child_pid2 == 0) {      // child process
+            printf("Child 2. PID = %d.\n", getpid());
+
+            if (execl("./application", "./application", "file2.txt", NULL) < 0) {
+                fprintf(stderr, "exec error: %s.\n", strerror(errno));
+                return EXIT_FAILURE;
+            }
+
+            exit(-1);
+        } else {                   // parent process
+            printf("Parent. PID = %d. Child 1 PID = %d. Child 2 PID = %d.\n", getpid(), 
+                                                                        child_pid1, child_pid2);
+
+            // timer end for application 1
+            if (gettimeofday(&end, NULL) < 0) {
+                fprintf(stderr, "gettimeofday failed.\n");
+                return EXIT_FAILURE;
+            }
+
+            // reaping children
+            if (waitpid(child_pid1, &status, 0) < 0) {
+                fprintf(stderr, "wait error %s.\n", strerror(errno));
+                return EXIT_FAILURE;
+            }
+
+            if (waitpid(child_pid2, &status, 0) < 0) {
+                fprintf(stderr, "wait error %s.\n", strerror(errno));
+                return EXIT_FAILURE;
+            }
+
+            float duration1 = (end.tv_usec - begin1.tv_usec);
+            float duration2 = (end.tv_usec - begin2.tv_usec);
+            printf("Time from starting up to launching %.1f microseconds.\n", duration1);
+            printf("Time from starting up to launching %.1f microseconds.\n", duration2);
+        }
     }
 
     return EXIT_SUCCESS; 

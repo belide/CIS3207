@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 50; i++) {
         write_to_file(fd, records);
         read_from_file(fd, records);
     }
@@ -98,8 +98,5 @@ void read_from_file(int fd, char records[10][120]) {
             } else
                 continue;
         }
-
-        if (matched)
-            printf("MATCHED! %s\n", c);
     }
 }
