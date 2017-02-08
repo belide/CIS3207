@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
     child_pid1 = Fork();
 
     if (child_pid1 == 0) {           // child process
-        printf("Child 1. PID = %d.\n", getpid());
+        // printf("Child 1. PID = %d.\n", getpid());
 
         if (execl("./application", "./application", "file1.txt", NULL) < 0) {
             fprintf(stderr, "exec error: %s.\n", strerror(errno));
@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
         child_pid2 = Fork();
 
         if (child_pid2 == 0) {      // child process
-            printf("Child 2. PID = %d.\n", getpid());
+            // printf("Child 2. PID = %d.\n", getpid());
 
             if (execl("./application", "./application", "file2.txt", NULL) < 0) {
                 fprintf(stderr, "exec error: %s.\n", strerror(errno));
@@ -68,8 +68,8 @@ int main(int argc, char **argv) {
 
             exit(-1);
         } else {                   // parent process
-            printf("Parent. PID = %d. Child 1 PID = %d. Child 2 PID = %d.\n", getpid(), 
-                                                                        child_pid1, child_pid2);
+            // printf("Parent. PID = %d. Child 1 PID = %d. Child 2 PID = %d.\n", getpid(), 
+                                                                        // child_pid1, child_pid2);
 
             // timer end for application 1
             if (gettimeofday(&end, NULL) < 0) {
@@ -90,8 +90,9 @@ int main(int argc, char **argv) {
 
             float duration1 = (end.tv_usec - begin1.tv_usec);
             float duration2 = (end.tv_usec - begin2.tv_usec);
-            printf("Time from starting up to launching %.1f microseconds.\n", duration1);
-            printf("Time from starting up to launching %.1f microseconds.\n", duration2);
+            // printf("Time from starting up to launching %.1f microseconds.\n", duration1);
+            // printf("Time from starting up to launching %.1f microseconds.\n", duration2);
+            printf("%.1f\n", duration2);
         }
     }
 

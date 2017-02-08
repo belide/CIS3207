@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
     child_pid = Fork();
 
     if (child_pid == 0) {           // child process
-        printf("Child. PID = %d.\n", getpid());
+        // printf("Child. PID = %d.\n", getpid());
 
         if (execl("./application", "./application", "file1.txt", NULL) < 0) {
             fprintf(stderr, "exec error: %s.\n", strerror(errno));
@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
 
         exit(-1);
     } else {                        // parent process
-        printf("Parent. PID = %d. Child PID = %d.\n", getpid(), child_pid);
+        // printf("Parent. PID = %d. Child PID = %d.\n", getpid(), child_pid);
 
         if (gettimeofday(&end, NULL) < 0) {
             fprintf(stderr, "gettimeofday failed.\n");
@@ -64,7 +64,8 @@ int main(int argc, char **argv) {
         }
 
         float duration = (end.tv_usec - begin.tv_usec);
-        printf("Time from starting up to launching %.1f microseconds.\n", duration);
+        // printf("Time from starting up to launching %.1f microseconds.\n", duration);
+        printf("%.1f", duration);
     }
 
     return EXIT_SUCCESS; 
