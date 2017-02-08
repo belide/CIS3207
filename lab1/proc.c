@@ -46,20 +46,20 @@ int main()
          }
          else /* parent process */
          {
-             printf("parent process!\n");
-             printf("parent PID =  %d, child pid = %d\n", getpid(), child_pid);
-             wait(&status); /* wait for child to exit, and store child's exit status */
+            printf("parent process!\n");
+            printf("parent PID =  %d, child pid = %d\n", getpid(), child_pid);
+            wait(&status); /* wait for child to exit, and store child's exit status */
             finish= clock();
-                micros = finish - start;
-                millis = micros / 1000;
+            micros = finish - start;
+            millis = micros / 1000;
             printf("Runtime: %u miliseconds\n",micros);
-             printf("Child exit code: %d\n", WEXITSTATUS(status));
+            printf("Child exit code: %d\n", WEXITSTATUS(status));
 
-             //The change in local and global variable in child process should not reflect here in parent process.
-             printf("\n Parent'z local = %d, parent's  global = %d\n",local,global);
+            //The change in local and global variable in child process should not reflect here in parent process.
+            printf("\n Parent'z local = %d, parent's  global = %d\n",local,global);
 
-             printf("Parent says bye!\n");
-             exit(0);  /* parent exits */
+            printf("Parent says bye!\n");
+            exit(0);  /* parent exits */
          }
     }
     else /* failure */
