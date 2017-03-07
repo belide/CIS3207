@@ -4,14 +4,14 @@
 
 ### Commands:
 #### Important:
-    - [x] cd
-    - [ ] clear
-    - [ ] ls
-    - [x] env
-    - [ ] echo
-    - [ ] help
+    - [x] cd (built in)
+    - [ ] clear (built in)
+    - [ ] ls (built in)
+    - [x] environ (built in)
+    - [ ] echo (built in)
+    - [x] help (built in)
     - [ ] pause
-    - [x] quit
+    - [x] quit (built in)
     - [ ] cat
 #### Additional:
     - [x] export

@@ -33,16 +33,14 @@
 // to print current working directory
 char *prompt;
 
-// environment variables
-extern char **environ;
-
 // list of built-in commands
 char *builtin_cmd[] = {
     "cd",
     "help",
     "quit",
     "echo",
-    "export"
+    "export",
+    "environ"
 };
 
 // array of pointer to function that takes char ** as input and return int
@@ -51,10 +49,11 @@ int (*builtin_func[]) (char **) = {
     &sh_help,
     &sh_quit,
     &sh_echo,
-    &sh_export
+    &sh_export,
+    &sh_environ
 };
 
-int main(int argc, char **argv, char **envp) {
+int main(int argc, char **argv) {
 
     // running commang loop
     shell_loop();
@@ -70,7 +69,7 @@ void shell_loop(void) {
     do {
         // this is the current working directory
         prompt = getcwd(prompt, BUF_SIZE);
-        printf("%s/ ", prompt);
+        printf("%s>", prompt);
         line = read_line();
         args = split_line(line);
         status = sh_execute(args);
@@ -117,18 +116,32 @@ int proc_launch(char **args) {
     pid_t pid, wpid;
     int status;
 
+    int bg = FALSE;
+    char proc_name[strlen(args[0])];
+    memset(proc_name, '\0', sizeof(proc_name));
+
+    // check if there is '&' indicating background process
+    if (args[0][strlen(args[0]) - 1] == '&') {
+        strncpy(proc_name, args[0], strlen(args[0]) - 1);
+        bg = TRUE;
+    }
+
     pid = Fork();
     if (pid == 0) {
         // child process
-        if (execvp(args[0], args) < 0) {
+        if (execvp(proc_name, args) < 0) {
             // error exec-ing
             fprintf(stderr, "shell: command not found: %s", args[0]);
             exit(EXIT_FAILURE);
         } else {
             // parent process
-            do {
-                wpid = waitpid(pid, &status, WUNTRACED);
-            } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+            // don't wait if it's a background process
+            if (bg == FALSE) {
+                do {
+                    wpid = waitpid(pid, &status, WUNTRACED);
+                } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+            } else
+                return 1;
         }
     }
 

@@ -31,6 +31,9 @@
 #include "shell.h"
 
 
+extern char **environ;
+
+
 // built in function for cd
 int sh_cd(char **args) {
     // if there is no argument, change to $HOME
@@ -65,6 +68,13 @@ int sh_help(char **args) {
 
 int sh_echo(char **args) {
     return 0;
+}
+
+int sh_environ(char **args) {
+    for (int i = 0; environ[i] != NULL; i++)
+        printf("%s\n", environ[i]);
+
+    return 1;
 }
 
 // built in function for export

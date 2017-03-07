@@ -42,7 +42,9 @@ int sh_help(char **);
 int sh_quit(char **);
 // echo command
 int sh_echo(char **);
-// export commend
+// environ command
+int sh_environ(char **);
+// export command
 int sh_export(char **);
 
 #endif
