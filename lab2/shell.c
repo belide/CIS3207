@@ -36,21 +36,25 @@ char *prompt;
 // list of built-in commands
 char *builtin_cmd[] = {
     "cd",
-    "help",
-    "quit",
+    "clr",
     "echo",
+    "environ",
     "export",
-    "environ"
+    "help",
+    "pause",
+    "quit"
 };
 
 // array of pointer to function that takes char ** as input and return int
 int (*builtin_func[]) (char **) = {
     &sh_cd,
-    &sh_help,
-    &sh_quit,
+    &sh_clr,
     &sh_echo,
+    &sh_environ,
     &sh_export,
-    &sh_environ
+    &sh_help,
+    &sh_pause,
+    &sh_quit
 };
 
 int main(int argc, char **argv) {
@@ -136,12 +140,11 @@ int proc_launch(char **args) {
         } else {
             // parent process
             // don't wait if it's a background process
-            if (bg == FALSE) {
+            if (!bg) {
                 do {
                     wpid = waitpid(pid, &status, WUNTRACED);
                 } while (!WIFEXITED(status) && !WIFSIGNALED(status));
-            } else
-                return 1;
+            }
         }
     }
 

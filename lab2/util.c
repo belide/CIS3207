@@ -91,6 +91,19 @@ int sh_export(char **args) {
     return 1;
 }
 
+// built in function for clr
+int sh_clr(char **args) {
+    system("clear");
+    return 1;
+}
+
+// built in function for pause
+int sh_pause(char **args) {
+    printf("Press 'Enter' to continue...");
+    while (getchar() != '\n');
+    return 1;
+}
+
 pid_t Fork(void) {
     pid_t pid;
 

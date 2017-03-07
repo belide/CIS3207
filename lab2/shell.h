@@ -46,5 +46,9 @@ int sh_echo(char **);
 int sh_environ(char **);
 // export command
 int sh_export(char **);
+// pause command
+int sh_pause(char **);
+// clear command
+int sh_clr(char **);
 
 #endif
