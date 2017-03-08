@@ -10,8 +10,8 @@
 #define WRITE 1
 
 #define PIPE '|'
-#define GREATER '>'
-#define LESS '<'
+#define RIGHT '>'
+#define LEFT '<'
 #define AMP '&'
 
 #define TOK_BUFSIZE 128
@@ -27,12 +27,21 @@ char **split_line(char *);
 int proc_launch(char **);
 // shell execute
 int sh_execute(char **);
+// detect symbols
+int detect_symbol(char **);
+// detect symbol with position
+int detect_symbol_pos(char **);
 // Fork wrapper
 pid_t Fork(void);
 
-/*
-    BUILT IN COMMANDS
-*/
+// len of args array
+int args_len(char **);
+
+/**
+ *
+ * BUILT IN COMMANDS
+ *
+ */
 int num_builtins();
 // cd command
 int sh_cd(char **);
