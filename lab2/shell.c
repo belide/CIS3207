@@ -157,6 +157,7 @@ int proc_launch(char **args) {
             fprintf(stderr, "shell: command not found: %s\n", args[0]);
             exit(EXIT_FAILURE);
         }
+        exit(-1);
     } else {
         // parent process
         // don't wait if it's a background process
@@ -212,52 +213,92 @@ int sh_execute(char **args) {
             args_right[j] = args[i];
         args_right[j] = NULL;
 
-        // for (int i = 0; args_left[i] != NULL; i++)
-        //     printf("DEBUG: args_left[%d]=%s\n", i, args_left[i]);
-        // for (int i = 0; args_right[i] != NULL; i++)
-        //     printf("DEBUG: args_right[%d]=%s\n", i, args_right[i]);
+        // if the special character is a PIPE
+        if (symbols[sym] == PIPE)
+            return invoke_pipe(args_left, args_right);
+        else if (symbols[sym] == LEFT)
+            return redirect(args_left, args_right, TRUE);
     }
+
+    return 1;
 }
 
-// detect '|', '<<', '>>', '<', '>' in the command
-int detect_symbol(char **args) {
-    /**
-    * '|' return 0
-    * '<' return 1
-    * '>' return 2
-    *
-    * if there is no symbol or empty command then return -1
-    */
+int redirect(char **args1, char **args2, int left) {
+    if (left) {
+        // it means the file name serves as the source of input
+    }
+    return 1;
+}
 
-    // command is empty
-    if (args[0] == NULL)
-        return -1;
+int invoke_pipe(char **args1, char **args2) {
+    pid_t pid1, pid2;
+    int status1, status2;
+    int fd[2];      // file descriptor
 
-    for (int i = 0; args[i] != NULL; i++) {
-        if (args[i][0] == PIPE)
-            return 0;
-        if (args[i][0] == LEFT)
+    // pipe the fd
+    if (pipe(fd) == -1) {
+        fprintf(stderr, "pipe error\n");
+        return EXIT_FAILURE;
+    }
+
+    // check if args1 is builtin
+    for (int i = 0; i < num_builtins(); i++) {
+        if (strcmp(args1[0], builtin_cmd[i]) == 0) {
+            // this is a built in command
+            pid1 = Fork();
+
+            if (pid1 == 0) {
+                // child process, which is the exec'd program that will get input
+                // from the built in command
+
+                // close the WRITE interface of the fd
+                close(fd[WRITE]);
+                dup2(fd[READ], STDIN_FILENO);
+
+                if (execvp(args2[0], args2) < 0) {
+                    fprintf(stderr, "shell: command not found: %s\n", strerror(errno));
+                    exit(EXIT_FAILURE);
+                }
+            } else {
+                // parent process, which sends the input to the exec'd program
+
+                // close READ interface of the fd
+                close(fd[READ]);
+                dup2(fd[WRITE], STDOUT_FILENO);
+
+                (*builtin_func[i])(args1);
+                waitpid(pid1, &status1, WUNTRACED);
+
+                return 1;
+            }
+        }
+    }
+
+    // if args1 is not built in
+    pid1 = Fork();
+    if (pid1 == 0) {
+        // child 1
+        // send input to pipe
+        close(fd[READ]);
+        dup2(fd[WRITE], STDOUT_FILENO);
+        return proc_launch(args1);
+    } else {
+        // parent branch
+        pid2 = Fork();
+        if (pid2 == 0) {
+            // child 2
+            close(fd[WRITE]);
+            dup2(fd[READ], STDIN_FILENO);
+            return proc_launch(args2);
+        } else {
+            // parent branch
+            close(fd[WRITE]);
+            close(fd[READ]);
+
+            waitpid(pid1, &status1, WUNTRACED);
+            waitpid(pid2, &status2, WUNTRACED);
+
             return 1;
-        if (args[i][0] == RIGHT)
-            return 2;
+        }
     }
-
-    return -1;
-}
-
-// like the previous method, but instead return the position of the special character
-int detect_symbol_pos(char **args) {
-    // if the command is empty
-    if (args[0] == NULL)
-        return -1;
-
-    for (int i = 0; args[i] != NULL; i++) {
-        if (args[i][0] == PIPE ||
-            args[i][0] == LEFT ||
-            args[i][0] == RIGHT)
-            return i;
-    }
-
-    // return -1 if nothing found
-    return -1;
 }

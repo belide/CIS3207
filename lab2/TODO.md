@@ -8,16 +8,16 @@
     - [x] clear (built in)
     - [ ] dir (built in)
     - [x] environ (built in)
-    - [ ] echo (built in)
+    - [x] echo (built in)
     - [x] help (built in)
     - [x] pause
     - [x] quit (built in)
-    - [ ] cat
+    - [x] cat
 #### Additional:
     - [x] export
 
 ### Functionalities:
-    - [ ] pipe
+    - [x] pipe
     - [x] background execution
     - [ ] redirection
     - [ ] autocomplete by TAB

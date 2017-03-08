@@ -30,7 +30,7 @@
 #include <unistd.h>
 #include "shell.h"
 
-
+// environment variable
 extern char **environ;
 
 int args_len(char **args) {
@@ -67,18 +67,24 @@ int sh_quit(char **args) {
 
 // built in function for help (man more)
 int sh_help(char **args) {
-    char *man[] = {"man", "more", NULL};
+    char *man[] = {"more", "readme.txt", NULL};
     return proc_launch(man);
 }
 
 int sh_echo(char **args) {
-    return 0;
+    if (args[1] == NULL)
+        fprintf(stdout, "\n");
+    else {
+        for (int i = 1; args[i] != NULL; i++)
+            printf("%s ", args[i]);
+        printf("\n");
+    }
+    return 1;
 }
 
 int sh_environ(char **args) {
     for (int i = 0; environ[i] != NULL; i++)
         printf("%s\n", environ[i]);
-
     return 1;
 }
 
@@ -107,6 +113,49 @@ int sh_pause(char **args) {
     printf("Press 'Enter' to continue...");
     while (getchar() != '\n');
     return 1;
+}
+
+// detect '|', '<<', '>>', '<', '>' in the command
+int detect_symbol(char **args) {
+    /**
+    * '|' return 0
+    * '<' return 1
+    * '>' return 2
+    *
+    * if there is no symbol or empty command then return -1
+    */
+
+    // command is empty
+    if (args[0] == NULL)
+        return -1;
+
+    for (int i = 0; args[i] != NULL; i++) {
+        if (args[i][0] == PIPE)
+            return 0;
+        if (args[i][0] == LEFT)
+            return 1;
+        if (args[i][0] == RIGHT)
+            return 2;
+    }
+
+    return -1;
+}
+
+// like the previous method, but instead return the position of the special character
+int detect_symbol_pos(char **args) {
+    // if the command is empty
+    if (args[0] == NULL)
+        return -1;
+
+    for (int i = 0; args[i] != NULL; i++) {
+        if (args[i][0] == PIPE ||
+            args[i][0] == LEFT ||
+            args[i][0] == RIGHT)
+            return i;
+    }
+
+    // return -1 if nothing found
+    return -1;
 }
 
 pid_t Fork(void) {

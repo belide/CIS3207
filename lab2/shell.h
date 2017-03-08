@@ -27,6 +27,10 @@ char **split_line(char *);
 int proc_launch(char **);
 // shell execute
 int sh_execute(char **);
+// invoke pipe
+int invoke_pipe(char **, char **);
+// redirection
+int redirect(char **, char **, int);
 // detect symbols
 int detect_symbol(char **);
 // detect symbol with position
