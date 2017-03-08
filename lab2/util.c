@@ -67,7 +67,7 @@ int sh_quit(char **args) {
 
 // built in function for help (man more)
 int sh_help(char **args) {
-    char *man[] = {"more", "readme.txt", NULL};
+    char *man[] = {"more", "readme", NULL};
     return proc_launch(man);
 }
 

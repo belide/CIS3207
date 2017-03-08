@@ -1,0 +1,59 @@
+NAME
+        shell - A simple shell
+
+DESCRIPTION
+        This program is a simple command line shell that executes commands read from the standard input or from a file.
+        These commands can be built in (listed below) or from environment path.
+
+        It should work in the similar manner as popular shells like bash, zsh or fish. To run a command, type it into the shell and
+        press Enter. All commands are terminated with newline character.
+
+BUILT-IN COMMANDS
+    cd      Change the current directory to the one specified after the command. If the directory specified does not exist
+            report an error. If there is no argument, change to $HOME.
+    
+    clr     Clear the screen.
+
+    ls      List the contents of a directory.
+
+    environ List all the environment strings.
+
+    export  Followed by a key=value pair, add new environment variables.
+
+    echo    Followed by a string and print that string onto the screen with a newline character.
+
+    help    Display the user manual.
+
+    pause   Pause the operation of the shell until <CR> is pressed
+
+    quit    Quit the shell.
+
+I/O REDIRECTION
+        Output of one command can be chained to the input of another command. The syntax is as follow:
+            $ cmd1 | cmd2
+        where cmd1 sends data through pipe to cmd2.
+
+        Output of commands can be redirected from stdout to a file with a symbol:
+            $ cmd > file
+        In this case, the output of cmd is redirected to file, if file does not exist then the shell will create one.
+
+        Input of commands can be from a file:
+            $ cmd < file
+        The command cmd takes input from file.
+
+BACKGROUND PROCESS
+        By default, when a program runs, the shell waits for it to finish before the user can perform any further action. However,
+        in order to run a program in background, add '&' immediately after the command name, such as:
+            $ [command name]&
+
+        In this case, the process runs silently in background and the user can continue using the shell.
+
+FILES
+    shell.c     Main components of the shell
+    util.c      Built-in functions for this shell
+    shell.h     Header file with function declarations and constant definitions
+
+AUTHOR
+        Tu Tran
+        Email: tu.tran@temple.edu
+

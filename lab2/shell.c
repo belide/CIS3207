@@ -21,6 +21,7 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -218,14 +219,36 @@ int sh_execute(char **args) {
             return invoke_pipe(args_left, args_right);
         else if (symbols[sym] == LEFT)
             return redirect(args_left, args_right, TRUE);
+        else
+            return redirect(args_left, args_right, FALSE);
     }
 
     return 1;
 }
 
 int redirect(char **args1, char **args2, int left) {
+    pid_t pid;
+    int status;
+    int fd;
+    char *filename;
+    filename = args2[0];
+
     if (left) {
-        // it means the file name serves as the source of input
+        // it means the file serves as the source of input
+        if ((fd = open(filename, O_RDONLY, 0755)) == -1) {
+            fprintf(stderr, "shell: no such file or directory: %s\n", strerror(errno));
+            return EXIT_FAILURE;
+        }
+
+        dup2(fd, STDIN_FILENO);
+    } else {
+        // it means the file serves as the target of output
+        if ((fd = open(filename, O_RDWR | O_CREAT | O_TRUNC, 0755)) == -1) {
+            fprintf(stderr, "shell: error creating file: %s\n", strerror(errno));
+            return EXIT_FAILURE;
+        }
+
+        dup2(fd, STDOUT_FILENO);
     }
     return 1;
 }
