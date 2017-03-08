@@ -6,7 +6,7 @@
 #### Important:
     - [x] cd (built in)
     - [x] clear (built in)
-    - [ ] ls (built in)
+    - [ ] dir (built in)
     - [x] environ (built in)
     - [ ] echo (built in)
     - [x] help (built in)
@@ -18,6 +18,6 @@
 
 ### Functionalities:
     - [ ] pipe
-    - [ ] background execution
+    - [x] background execution
     - [ ] redirection
     - [ ] autocomplete by TAB

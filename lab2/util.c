@@ -33,6 +33,11 @@
 
 extern char **environ;
 
+int args_len(char **args) {
+    int i = 0;
+    for (i = 0; args[i] != NULL; i++) {}
+    return i;
+}
 
 // built in function for cd
 int sh_cd(char **args) {

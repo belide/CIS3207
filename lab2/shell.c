@@ -57,6 +57,13 @@ int (*builtin_func[]) (char **) = {
     &sh_quit
 };
 
+// array of special characters
+int symbols[] = {
+    PIPE,
+    LEFT,
+    RIGHT
+};
+
 int main(int argc, char **argv) {
 
     // running commang loop
@@ -73,9 +80,15 @@ void shell_loop(void) {
     do {
         // this is the current working directory
         prompt = getcwd(prompt, BUF_SIZE);
+
+        // print the prompt
         printf("%s>", prompt);
+
+        // read and parse line
         line = read_line();
         args = split_line(line);
+
+        // update status
         status = sh_execute(args);
 
         free(line);
@@ -120,14 +133,20 @@ int proc_launch(char **args) {
     pid_t pid, wpid;
     int status;
 
+    // background flag
     int bg = FALSE;
+
+    // process name to run
     char proc_name[strlen(args[0])];
     memset(proc_name, '\0', sizeof(proc_name));
-
+    
     // check if there is '&' indicating background process
     if (args[0][strlen(args[0]) - 1] == '&') {
         strncpy(proc_name, args[0], strlen(args[0]) - 1);
         bg = TRUE;
+    } else {
+        // if no & just copy args[0] into proc_name
+        strcpy(proc_name, args[0]);
     }
 
     pid = Fork();
@@ -135,16 +154,16 @@ int proc_launch(char **args) {
         // child process
         if (execvp(proc_name, args) < 0) {
             // error exec-ing
-            fprintf(stderr, "shell: command not found: %s", args[0]);
+            fprintf(stderr, "shell: command not found: %s\n", args[0]);
             exit(EXIT_FAILURE);
-        } else {
-            // parent process
-            // don't wait if it's a background process
-            if (!bg) {
-                do {
-                    wpid = waitpid(pid, &status, WUNTRACED);
-                } while (!WIFEXITED(status) && !WIFSIGNALED(status));
-            }
+        }
+    } else {
+        // parent process
+        // don't wait if it's a background process
+        if (!bg) {
+            do {
+                wpid = waitpid(pid, &status, WUNTRACED);
+            } while (!WIFEXITED(status) && !WIFSIGNALED(status));
         }
     }
 
@@ -158,12 +177,87 @@ int sh_execute(char **args) {
         return 1;
     }
 
-    for (int i = 0; i < num_builtins(); i++) {
-        if (strcmp(args[0], builtin_cmd[i]) == 0) {
-            // this is a built in command
-            return (*builtin_func[i])(args);
+    // detect the special character and its position
+    int sym = detect_symbol(args);
+    int sym_pos = detect_symbol_pos(args);
+
+    // in the event there is no pipe or redirection
+    if (sym < 0 || sym_pos < 0) {
+        for (int i = 0; i < num_builtins(); i++) {
+            if (strcmp(args[0], builtin_cmd[i]) == 0) {
+                // this is a built in command
+                return (*builtin_func[i])(args);
+            }
         }
+        return proc_launch(args);
+
+    // there is pipe and redirection
+    } else {
+        // length of args array
+        int len = args_len(args);
+        // args to the left
+        char *args_left[sym_pos + 1];
+        // args to the right
+        char *args_right[len - sym_pos];
+
+        // copy arguments on the left side
+        int i = 0;
+        for (; i < sym_pos; i++)
+            args_left[i] = args[i];
+        args_left[i++] = NULL;
+
+        // copy arguments on the right side
+        int j = 0;
+        for (; args[i] != NULL; i++, j++)
+            args_right[j] = args[i];
+        args_right[j] = NULL;
+
+        // for (int i = 0; args_left[i] != NULL; i++)
+        //     printf("DEBUG: args_left[%d]=%s\n", i, args_left[i]);
+        // for (int i = 0; args_right[i] != NULL; i++)
+        //     printf("DEBUG: args_right[%d]=%s\n", i, args_right[i]);
+    }
+}
+
+// detect '|', '<<', '>>', '<', '>' in the command
+int detect_symbol(char **args) {
+    /**
+    * '|' return 0
+    * '<' return 1
+    * '>' return 2
+    *
+    * if there is no symbol or empty command then return -1
+    */
+
+    // command is empty
+    if (args[0] == NULL)
+        return -1;
+
+    for (int i = 0; args[i] != NULL; i++) {
+        if (args[i][0] == PIPE)
+            return 0;
+        if (args[i][0] == LEFT)
+            return 1;
+        if (args[i][0] == RIGHT)
+            return 2;
     }
 
-    return proc_launch(args);
+    return -1;
+}
+
+// like the previous method, but instead return the position of the special character
+int detect_symbol_pos(char **args) {
+    // if the command is empty
+    if (args[0] == NULL)
+        return -1;
+
+    for (int i = 0; args[i] != NULL; i++) {
+        if (args[i][0] == PIPE ||
+            args[i][0] == LEFT ||
+            args[i][0] == RIGHT)
+            return i;
+    }
+
+    // return -1 if nothing found
+    return -1;
 }
