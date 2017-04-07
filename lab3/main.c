@@ -20,6 +20,7 @@ int main(int argc, char **argv) {
     // listen socket descriptor
     // connected socket descriptor
     int listenfd, connectedfd;
+    int i;
 
     sockaddr client_addr;
     socklen_t client_addr_size;
@@ -37,7 +38,7 @@ int main(int argc, char **argv) {
     listenfd = getlistenfd(port);
 
     // create worker threads
-    for (int i = 0; i < NUM_WORKERS; i++) {
+    for (i = 0; i < NUM_WORKERS; i++) {
         if(pthread_create(&threads[i], NULL, request_handle, &q) != 0) {
             fprintf(stderr, "error creating thread.\n");
             return EXIT_FAILURE;
@@ -52,7 +53,7 @@ int main(int argc, char **argv) {
         // printf("DEBUG: inside main while loop\n");
         client_addr_size = sizeof(client_addr);
 
-        if((connectedfd = accept(listenfd, (struct sockaddr *) &client_addr, &client_addr_size)) == -1) {
+        if((connectedfd = accept(listenfd, (sockaddr *) &client_addr, &client_addr_size)) == -1) {
             fprintf(stderr, "accept error\n");
             continue;
         }
@@ -73,7 +74,7 @@ int main(int argc, char **argv) {
     }
 
     // join threads
-    for (int i = 0; i < NUM_WORKERS; i++) {
+    for (i = 0; i < NUM_WORKERS; i++) {
         if (pthread_join(threads[i], &ret) != 0) {
             fprintf(stderr, "join error\n");
             return EXIT_FAILURE;

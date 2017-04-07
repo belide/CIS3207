@@ -4,6 +4,7 @@
 #include <semaphore.h>
 
 #define BUF_SIZE 256
+#define _XOPEN_SOURCE 600
 
 #define READ 0
 #define WRITE 1

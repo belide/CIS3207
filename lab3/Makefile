@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-g -Wall -std=c99
+CFLAGS=-g -Wall -pthread
 RM=rm
 
 all: clean server
