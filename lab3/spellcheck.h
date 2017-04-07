@@ -1,6 +1,8 @@
 #ifndef SPELLCHECK_H
 #define SPELLCHECK_H
 
+#include <semaphore.h>
+
 #define BUF_SIZE 256
 
 #define READ 0
@@ -25,6 +27,7 @@
 
 typedef struct addrinfo addrinfo;
 typedef struct sockaddr_storage sockaddr_storage;
+typedef struct sockaddr sockaddr;
 typedef struct {
     // buffer array
     int *buf;
@@ -48,6 +51,7 @@ void q_insert(queue *, int);
 int q_remove(queue *);
 
 int getlistenfd(char *);
-void *request_handle();
+void *request_handle(void *);
+ssize_t readLine(int , void *, size_t);
 
 #endif

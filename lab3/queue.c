@@ -12,6 +12,8 @@ void q_init(queue *q, int n) {
     q->buf = calloc(n, sizeof(int));
     // capacity is n
     q->capacity = n;
+    // size is 0
+    q->size = 0;
     // empty buffer if front == rear
     q->front = q->rear = 0;
     // binary sem for locking
@@ -27,19 +29,21 @@ void q_deinit(queue *q) {
 }
 
 void q_insert(queue *q, int item) {
-    P(&q->slots);
-    P(&q->mutex);
+    sem_wait(&q->slots);
+    sem_wait(&q->mutex);
     q->buf[(++q->rear) % (q->capacity)] = item;
-    V(&q->mutex);
-    V(&q->items);
+    q->size++;
+    sem_post(&q->mutex);
+    sem_post(&q->items);
 }
 
-void q_remove(queue *q) {
+int q_remove(queue *q) {
     int item;
-    P(&q->items);
-    P(&q->mutex);
+    sem_wait(&q->items);
+    sem_wait(&q->mutex);
     item = q->buf[(++q->front) % (q->capacity)];
-    V(&q->mutex);
-    V(&q->slots);
+    q->size--;
+    sem_post(&q->mutex);
+    sem_post(&q->slots);
     return item;
 }
