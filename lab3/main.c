@@ -37,6 +37,9 @@ int main(int argc, char **argv) {
 
     listenfd = getlistenfd(port);
 
+    // initializing queue
+    q_init(&q, 20);
+
     // create worker threads
     for (i = 0; i < NUM_WORKERS; i++) {
         if(pthread_create(&threads[i], NULL, request_handle, &q) != 0) {
@@ -45,9 +48,6 @@ int main(int argc, char **argv) {
         }
         // printf("DEBUG: Creating thread %d\n", threads[i]);
     }
-
-    // initializing queue
-    q_init(&q, 20);
 
     while (1) {
         // printf("DEBUG: inside main while loop\n");
@@ -136,7 +136,7 @@ void *request_handle(void *q) {
     queue *qu = (queue *) q;
     printf("DEBUG: (inside thread) number of connections is %d\n", qu->size);
 
-    while (qu->size < qu->capacity) {
+    while (qu->front != qu->rear) {
         connectedfd = q_remove(qu);
 
         printf("DEBUG: just removed socket des %d from queue\n", connectedfd);
