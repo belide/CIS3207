@@ -2,10 +2,10 @@ CC=gcc
 CFLAGS=-g -Wall -pthread
 RM=rm
 
-all: clean server
+all: clean serv
 
-server: main.c queue.c spellcheck.h
-		$(CC) $(CFLAGS) -o server main.c queue.c
+serv: main.c queue.c spellcheck.h
+		$(CC) $(CFLAGS) -o serv main.c queue.c
 
 clean:
-		$(RM) -rf server *.dSYM
+		$(RM) -rf serv *.dSYM
