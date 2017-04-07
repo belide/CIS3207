@@ -122,7 +122,8 @@ int getlistenfd(char *port) {
         exit(EXIT_LISTEN_FAILURE);
     }
 
-    // printf("SUCCESSFULLY created socket descriptor\n");
+    printf("SUCCESSFULLY created socket descriptor\n");
+    printf("Listening on port %s\n", port);
 
     return listenfd;
 }

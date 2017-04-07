@@ -13,7 +13,7 @@
 #define FALSE 0
 
 #define BACKLOG 20
-#define DEFAULT_PORT_STR "8000"
+#define DEFAULT_PORT_STR "9999"
 
 #define DEFAULT_DICTIONARY "words"
 
