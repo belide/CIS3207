@@ -135,7 +135,7 @@ void *request_handle(void *q) {
 
     queue *qu = (queue *) q;
 
-    while (qu->front != qu->rear) {
+    while (1) {
         printf("DEBUG: (inside thread) number of connections is %d\n", qu->size);
         connectedfd = q_remove(qu);
 
