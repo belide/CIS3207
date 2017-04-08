@@ -172,6 +172,7 @@ void *request_handle(void *arguments) {
     int connectedfd;
     ssize_t bytes_read;
     char line[MAX_LINE];
+    char result[MAX_LINE];
 
     thread_args *args = arguments;
     queue *qu = args->qu;
@@ -184,8 +185,15 @@ void *request_handle(void *arguments) {
         // printf("DEBUG: just removed socket des %d from queue\n", connectedfd);
 
         while((bytes_read = readLine(connectedfd, line, MAX_LINE - 1)) > 0) {
-            printf("just read %s", line);
-            write(connectedfd, line, bytes_read);
+            // scan for the words in the dictionary
+            int i;
+            for (i = 0; words[i] != NULL; i++) {
+                if (strcmp(words[i], line) == 0) {
+                    strncpy(result, line, strlen(line));
+                    strcat(result, " OK");
+                    write(connectedfd, result, sizeof(result));
+                }
+            }
         }
 
         printf("connection closed\n");
