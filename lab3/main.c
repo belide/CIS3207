@@ -173,6 +173,7 @@ void *request_handle(void *arguments) {
     ssize_t bytes_read;
     char line[MAX_LINE];
     char result[MAX_LINE];
+    int ok = FALSE;
 
     thread_args *args = arguments;
     queue *qu = args->qu;
@@ -185,18 +186,27 @@ void *request_handle(void *arguments) {
         // printf("DEBUG: just removed socket des %d from queue\n", connectedfd);
 
         while((bytes_read = readLine(connectedfd, line, MAX_LINE - 1)) > 0) {
+            // empty the result string
+            memset(result, 0, sizeof(result));
             // scan for the words in the dictionary
             int i;
+            // printf("LINE: %s. Length is %d\n", line, strlen(line));
             for (i = 0; words[i] != NULL; i++) {
-                printf("DICT: %s\n", words[i]);
-                if (strcmp(words[i], line, strlen(line) - 1) == 0) {
-                    strncpy(result, line, strlen(line) - 1);
-                    strcat(result, " OK");
-                    printf("RESULT: %s\n", result);
-                    write(connectedfd, result, sizeof(result));
+                if (strncmp(words[i], line, strlen(line) - 2) == 0) {
+                    strncpy(result, line, strlen(line) - 2);
+                    ok = TRUE;
                     break;
                 }
             }
+
+            if (ok) {
+                strcat(result, " OK\n");
+            } else {
+                strncpy(result, line, strlen(line) - 2);
+                strcat(result, " MISSPELLED\n");
+            }
+            write(connectedfd, result, sizeof(result));
+            ok = FALSE;
         }
 
         printf("connection closed\n");
