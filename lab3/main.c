@@ -17,6 +17,9 @@
 int main(int argc, char **argv) {
     pthread_t threads[NUM_WORKERS];
 
+    // arguments for thread
+    thread_args pargs;
+
     // listen socket descriptor
     // connected socket descriptor
     int listenfd, connectedfd;
@@ -53,6 +56,7 @@ int main(int argc, char **argv) {
         dict_name = DEFAULT_DICTIONARY;
     } else if (argc < 3) {
         port = DEFAULT_PORT_STR;
+        dict_name = argv[2];
     } else {
         port = argv[1];
         dict_name = argv[2];
@@ -70,13 +74,16 @@ int main(int argc, char **argv) {
     } else
         printf("SUCCESSFULLY loaded dictionary to memory.\n");
 
+    // pass arguments for worker threads
+    pargs.qu = &q;
+    pargs.words = words;
+
     // create worker threads
     for (i = 0; i < NUM_WORKERS; i++) {
-        if(pthread_create(&threads[i], NULL, request_handle, &q) != 0) {
+        if(pthread_create(&threads[i], NULL, request_handle, &pargs) != 0) {
             fprintf(stderr, "error creating thread.\n");
             return EXIT_FAILURE;
         }
-        // printf("DEBUG: Creating thread %d\n", threads[i]);
     }
 
     while (1) {
@@ -110,6 +117,8 @@ int main(int argc, char **argv) {
             return EXIT_FAILURE;
         }
     }
+
+    free(words);
 
     return EXIT_SUCCESS;
 }
@@ -158,12 +167,15 @@ int getlistenfd(char *port) {
     return listenfd;
 }
 
-void *request_handle(void *q) {
+/* client servicing function for worker thread */
+void *request_handle(void *arguments) {
     int connectedfd;
     ssize_t bytes_read;
     char line[MAX_LINE];
 
-    queue *qu = (queue *) q;
+    thread_args *args = arguments;
+    queue *qu = args->qu;
+    char **words = args->words;
 
     while (1) {
         // printf("DEBUG: (inside thread) number of connections is %d\n", qu->size);
@@ -252,9 +264,11 @@ char **load_dict(char *dict_name) {
             return NULL;
         }
 
-        strncpy(dict[i++], line, sizeof(line));
+        // minus the newline character
+        strncpy(dict[i++], line, strlen(line) - 1);
     }
 
+    fclose(fp);
     dict[i] = NULL;
 
     return dict;

@@ -45,6 +45,10 @@ typedef struct {
     sem_t slots;
     sem_t items;
 } queue;
+typedef struct thread_args {
+    queue *qu;
+    char **words;
+} thread_args;
 
 // queue thing
 void q_init(queue *, int);
