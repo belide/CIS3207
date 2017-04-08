@@ -189,8 +189,8 @@ void *request_handle(void *arguments) {
             int i;
             for (i = 0; words[i] != NULL; i++) {
                 printf("DICT: %s\n", words[i]);
-                if (strcmp(words[i], line) == 0) {
-                    strncpy(result, line, strlen(line));
+                if (strcmp(words[i], line, strlen(line) - 1) == 0) {
+                    strncpy(result, line, strlen(line) - 1);
                     strcat(result, " OK");
                     printf("RESULT: %s\n", result);
                     write(connectedfd, result, sizeof(result));
