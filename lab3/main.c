@@ -20,14 +20,26 @@ int main(int argc, char **argv) {
     // listen socket descriptor
     // connected socket descriptor
     int listenfd, connectedfd;
+
+    // loop index
     int i;
 
+    // stuff for handling client requests
+    // i dont know either don't ask
     sockaddr client_addr;
     socklen_t client_addr_size;
+
+    // client stuff
     char client_name[MAX_LINE];
     char client_port[MAX_LINE];
+
+    // port
     char *port;
+
+    // pointer to linked list of return when calling socket
     void *ret;
+
+    // queue to store socket descriptors
     queue q;
 
     if (argc < 2)
@@ -66,11 +78,11 @@ int main(int argc, char **argv) {
             printf("accepted connection from %s: %s\nWaiting for handling threads\n", client_name, client_port);
         }
 
-        printf("DEBUG: connectedfd is %d\n", connectedfd);
+        // printf("DEBUG: connectedfd is %d\n", connectedfd);
 
         q_insert(&q, connectedfd);
 
-        printf("DEBUG: number of connections is %d\n", q.size);
+        // printf("DEBUG: number of connections is %d\n", q.size);
     }
 
     // join threads
@@ -136,10 +148,10 @@ void *request_handle(void *q) {
     queue *qu = (queue *) q;
 
     while (1) {
-        printf("DEBUG: (inside thread) number of connections is %d\n", qu->size);
+        // printf("DEBUG: (inside thread) number of connections is %d\n", qu->size);
         connectedfd = q_remove(qu);
 
-        printf("DEBUG: just removed socket des %d from queue\n", connectedfd);
+        // printf("DEBUG: just removed socket des %d from queue\n", connectedfd);
 
         while((bytes_read = readLine(connectedfd, line, MAX_LINE - 1)) > 0) {
             printf("just read %s", line);
