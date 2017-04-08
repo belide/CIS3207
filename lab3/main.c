@@ -191,7 +191,9 @@ void *request_handle(void *arguments) {
                 if (strcmp(words[i], line) == 0) {
                     strncpy(result, line, strlen(line));
                     strcat(result, " OK");
+                    printf("RESULT: %s\n", result);
                     write(connectedfd, result, sizeof(result));
+                    break;
                 }
             }
         }
