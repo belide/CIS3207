@@ -188,6 +188,7 @@ void *request_handle(void *arguments) {
             // scan for the words in the dictionary
             int i;
             for (i = 0; words[i] != NULL; i++) {
+                printf("DICT: %s\n", words[i]);
                 if (strcmp(words[i], line) == 0) {
                     strncpy(result, line, strlen(line));
                     strcat(result, " OK");
