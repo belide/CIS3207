@@ -134,9 +134,9 @@ void *request_handle(void *q) {
     char line[MAX_LINE];
 
     queue *qu = (queue *) q;
-    printf("DEBUG: (inside thread) number of connections is %d\n", qu->size);
 
     while (qu->front != qu->rear) {
+        printf("DEBUG: (inside thread) number of connections is %d\n", qu->size);
         connectedfd = q_remove(qu);
 
         printf("DEBUG: just removed socket des %d from queue\n", connectedfd);
