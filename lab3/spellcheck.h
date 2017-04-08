@@ -16,6 +16,7 @@
 #define DEFAULT_PORT_STR "9999"
 
 #define DEFAULT_DICTIONARY "words"
+#define DICTIONARY_SIZE 99172
 
 #define EXIT_USAGE_ERROR 1
 #define EXIT_GETADDRINFO_ERROR 2
@@ -54,5 +55,6 @@ int q_remove(queue *);
 int getlistenfd(char *);
 void *request_handle(void *);
 ssize_t readLine(int , void *, size_t);
+char **load_dict(char *);
 
 #endif

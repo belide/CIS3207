@@ -36,21 +36,39 @@ int main(int argc, char **argv) {
     // port
     char *port;
 
+    // dictionary file name
+    char *dict_name;
+
+    // array of words in the dictionary
+    char **words;
+
     // pointer to linked list of return when calling socket
     void *ret;
 
     // queue to store socket descriptors
     queue q;
 
-    if (argc < 2)
+    if (argc < 2) {
         port = DEFAULT_PORT_STR;
-    else
+        dict_name = DEFAULT_DICTIONARY;
+    } else if (argc < 3) {
+        port = DEFAULT_PORT_STR;
+    } else {
         port = argv[1];
+        dict_name = argv[2];
+    }
 
+    // get socket descriptor
     listenfd = getlistenfd(port);
 
     // initializing queue
     q_init(&q, 20);
+
+    if ((words = load_dict(dict_name)) == NULL) {
+        fprintf(stderr, "error reading dictionary from file. program terminated.\n");
+        return EXIT_FAILURE;
+    } else
+        printf("SUCCESSFULLY loaded dictionary to memory.\n");
 
     // create worker threads
     for (i = 0; i < NUM_WORKERS; i++) {
@@ -214,4 +232,30 @@ ssize_t readLine(int fd, void *buffer, size_t n) {
 
     *buf = '\0';
     return totRead;
+}
+
+char **load_dict(char *dict_name) {
+    FILE *fp;
+    char line[MAX_LINE];
+    char **dict;
+    int i = 0;
+
+    if ((dict = malloc(DICTIONARY_SIZE * sizeof(char *))) == NULL) {
+        fprintf(stderr, "error allocating dictionary array.\n");
+        return NULL;
+    }
+
+    fp = fopen(dict_name, "r");
+    while (fgets(line, sizeof(line), fp)) {
+        if ((dict[i] = malloc(strlen(line) * sizeof(char *) + 1)) == NULL) {
+            fprintf(stderr, "error loading word into dict array.\n");
+            return NULL;
+        }
+
+        strncpy(dict[i++], line, sizeof(line));
+    }
+
+    dict[i] = NULL;
+
+    return dict;
 }
